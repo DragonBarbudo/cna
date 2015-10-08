@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>La aportación del Centro Nacional de las Artes a la Educación Básica</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <style media="screen">
+      *{ margin: 0px; padding: 0px;}
+      body{ background:#F1F3F6; font-family: Arial, sans-serif; }
+      .container{ width: 962px; margin: 0 auto; overflow: hidden; position: relative; padding: 20px 0;}
+      .taj{ text-align: justify; }
+      .tac{ text-align: center; }
+      .tar{ text-align: right; }
+      h1{ width:100%; margin: 10px 0; background:#fff; padding: 10px 0; font-weight: normal; }
+
+      #flipbook{display:none; border:1px solid #000;}
+     #flipbook .page{
+          background: #666;
+          color:#fff;
+     }
+      .travel{height: 40px;  width: 100%; position:relative;}
+     .travel i{ cursor: pointer; }
+     .travel i:hover{ color:#888; }
+     .travel i.left{ position: absolute; left: 0; top:10px; }
+     .travel i.right{ position: absolute; right: 0; top:10px; }
+
+      .loading{
+        width: 960px;
+        height: 438px;
+        background: #fff;
+        text-align: center;
+        font-size: 1.4em;
+        color:#666;
+        padding-top: 100px;
+        border:1px solid #000;
+      }
+      .loading div{
+        display: block;
+        padding: 40px 0;
+        font-size: 4em;
+      }
+
+      footer{
+        width: 100%;
+        background: #fff;
+        padding: 20px 0;
+        margin-top: 20px;
+        text-align: center;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h1><div class="container tac">LA <strong>APORTACIÓN</strong> DEL CENTRO NACIONAL<br>DE LAS ARTES A LA <strong>EDUCACIÓN BÁSICA</strong></div></h1>
+    <div class="container">
+      <div class="loading"><div class="fa fa-spinner fa-pulse"></div> Cargando <span class="pagesLoaded"></span> páginas de <span class="pagesTotal"></span></div>
+      <div id="flipbook"></div>
+      <div class="travel">
+        <i class="fa fa-arrow-left left"></i>
+        <i class="fa fa-arrow-right right"></i>
+      </div>
+    </div>
+
+    <footer>
+      <img src="recursos/logos.png">
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="recursos/pdf.js"></script>
+    <script src="recursos/pdf.worker.js"></script>
+    <script src="recursos/turn.js"></script>
+    <script>
+
+      var currPage = 1;
+      var numPages = 0;
+      var thePDF = null;
+
+
+      $(function(){
+
+
+
+
+
+      });
+
+
+      PDFJS.getDocument('recursos/libro.pdf').then(function(pdf) {
+        thePDF = pdf;
+        numPages = thePDF.numPages;
+        $('.pagesTotal').html(numPages);
+        pdf.getPage(1).then( handler );
+
+      });
+
+
+
+      function handler(page){
+        console.log(currPage + ' | '+ numPages);
+        $('.pagesLoaded').html(currPage);
+        var viewport = page.getViewport( 1 );
+        var toAppend = $('<div><canvas id="page-'+currPage+'" width="480" ></canvas></div>');
+        $("#flipbook").append(toAppend);
+        var theCanvas = $('#page-'+currPage)[0];
+        var context = theCanvas.getContext('2d');
+        theCanvas.height = viewport.height;
+        page.render({canvasContext: context, viewport: viewport});
+
+        currPage++;
+        if ( thePDF !== null && currPage <= numPages ) {
+            thePDF.getPage( currPage ).then( handler );
+        }
+        if(currPage == numPages){
+          console.log('starting flippbook');
+          //Start Flipbook
+          $(".loading").hide();
+          $("#flipbook").show();
+          $("#flipbook").turn({
+            width:960,
+  			    height:538,
+            elevation: 10
+          });
+
+          $('.left').click(function(){ $("#flipbook").turn("previous"); });
+          $('.right').click(function(){ $("#flipbook").turn("next"); });
+        }
+      }
+    </script>
+  </body>
+</html>
